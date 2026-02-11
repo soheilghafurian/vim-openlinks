@@ -28,13 +28,35 @@ git clone https://github.com/yourusername/vim-openlinks.git
 
 ## Usage
 
-The plugin provides a single command, `:OpenLinks`, which accepts any standard ex range:
+### Ex Command
+
+The `:OpenLinks` command accepts any standard ex range:
 
 ```vim
 :OpenLinks              " current line
 :5,10OpenLinks          " lines 5-10
 :'<,'>OpenLinks         " visual selection
 :%OpenLinks             " entire buffer
+```
+
+### Normal Mode Mappings
+
+The plugin maps `<leader>x` as an operator, following standard Vim conventions:
+
+| Keys | Scope |
+|---|---|
+| `<leader>xx` | current line |
+| `<leader>xip` | inner paragraph |
+| `<leader>x5j` | current + next 5 lines |
+| `<leader>xG` | current line to end of file |
+| `V` select then `<leader>x` | visual selection |
+
+To use a different key, remap the `<Plug>` mappings in your `.vimrc`:
+
+```vim
+nmap <leader>o <Plug>(openlinks)
+nmap <leader>oo <Plug>(openlinks-line)
+xmap <leader>o <Plug>(openlinks-visual)
 ```
 
 ### URL Detection

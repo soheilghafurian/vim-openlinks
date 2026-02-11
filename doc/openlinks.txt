@@ -20,6 +20,36 @@ COMMAND                                                    *:OpenLinks*
 <
 
 ==============================================================================
+MAPPINGS                                             *openlinks-mappings*
+
+The plugin provides normal-mode and visual-mode mappings using
+<leader>x. These use |<Plug>| mappings so you can remap them.
+
+                                                     *<Plug>(openlinks)*
+<leader>x{motion}        Operator mapping. Open all URLs in the lines
+                         covered by {motion}.
+
+                         Examples: >
+                           <leader>xip           current paragraph
+                           <leader>x5j           current + next 5 lines
+                           <leader>xG            current line to end of file
+<
+                                                     *<Plug>(openlinks-line)*
+<leader>xx               Open all URLs on the current line.
+                         (Like |dd| and |yy|, doubling the key applies
+                         the operator to the current line.)
+
+                                                     *<Plug>(openlinks-visual)*
+{Visual}<leader>x        Open all URLs in the visual selection.
+
+                                                     *openlinks-custom-mappings*
+To use a different key instead of <leader>x: >
+  nmap <leader>o <Plug>(openlinks)
+  nmap <leader>oo <Plug>(openlinks-line)
+  xmap <leader>o <Plug>(openlinks-visual)
+<
+
+==============================================================================
 URL DETECTION                                      *openlinks-url-detection*
 
 The plugin detects the following URL forms:

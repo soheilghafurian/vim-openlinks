@@ -175,3 +175,70 @@ Execute (OpenLinks with range opens URLs in range):
   Assert g:test_messages =~# 'gamma.com'
   Assert g:test_messages =~# 'Opened 3 URL(s)'
   unlet g:openlinks_command
+
+" ============================================================
+" Operator / Mapping Tests
+" ============================================================
+
+Execute (Operator function exists):
+  Assert exists('*openlinks#Operator'), 'openlinks#Operator should exist'
+
+Given (Line for operator test):
+  Check https://operator-test.com here
+
+Execute (Operator function opens URLs via marks):
+  let g:openlinks_command = 'true'
+  messages clear
+  " Simulate operator marks on line 1
+  normal! 1G
+  call setpos("'[", [0, 1, 1, 0])
+  call setpos("']", [0, 1, len(getline(1)), 0])
+  call openlinks#Operator('line')
+  redir => g:test_messages
+    silent messages
+  redir END
+  Assert g:test_messages =~# 'https://operator-test.com'
+  Assert g:test_messages =~# 'Opened 1 URL(s)'
+  unlet g:openlinks_command
+
+Given (Multiple lines for operator range):
+  Line one https://op1.com
+  Line two https://op2.com
+  Line three no link
+
+Execute (Operator function works across multiple lines):
+  let g:openlinks_command = 'true'
+  messages clear
+  call setpos("'[", [0, 1, 1, 0])
+  call setpos("']", [0, 3, len(getline(3)), 0])
+  call openlinks#Operator('line')
+  redir => g:test_messages
+    silent messages
+  redir END
+  Assert g:test_messages =~# 'op1.com'
+  Assert g:test_messages =~# 'op2.com'
+  Assert g:test_messages =~# 'Opened 2 URL(s)'
+  unlet g:openlinks_command
+
+Given (Line for leader-xx test):
+  Visit https://leaderxx.com today
+
+Execute (leader-xx mapping opens current line):
+  let g:openlinks_command = 'true'
+  messages clear
+  normal! 1G
+  execute "normal \<Plug>(openlinks-line)"
+  redir => g:test_messages
+    silent messages
+  redir END
+  Assert g:test_messages =~# 'https://leaderxx.com'
+  Assert g:test_messages =~# 'Opened 1 URL(s)'
+  unlet g:openlinks_command
+
+Given (Plug mappings are defined):
+  dummy
+
+Execute (Plug mappings exist):
+  Assert hasmapto('<Plug>(openlinks)'), '<Plug>(openlinks) should be mapped'
+  Assert hasmapto('<Plug>(openlinks-line)'), '<Plug>(openlinks-line) should be mapped'
+  Assert hasmapto('<Plug>(openlinks-visual)'), '<Plug>(openlinks-visual) should be mapped'

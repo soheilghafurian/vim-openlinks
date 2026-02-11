@@ -52,6 +52,10 @@ function! s:OpenURL(cmd, url) abort
   endif
 endfunction
 
+function! openlinks#Operator(type) abort
+  call openlinks#Open(line("'["), line("']"))
+endfunction
+
 function! openlinks#Open(line1, line2) abort
   let urls = s:ExtractURLs(a:line1, a:line2)
 
