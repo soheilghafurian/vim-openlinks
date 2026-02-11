@@ -1,0 +1,64 @@
+*openlinks.txt*  Extract and open URLs from lines
+
+OPENLINKS                                                        *openlinks*
+
+A Vim plugin that extracts and opens all URLs found in a given line range.
+
+==============================================================================
+COMMAND                                                    *:OpenLinks*
+
+:[range]OpenLinks        Extract all URLs from [range] and open each one
+                         in the system browser (or custom command).
+
+                         Without a range, operates on the current line.
+
+                         Examples: >
+                           :OpenLinks             current line
+                           :5,10OpenLinks          lines 5-10
+                           :'<,'>OpenLinks         visual selection
+                           :%OpenLinks             entire buffer
+<
+
+==============================================================================
+URL DETECTION                                      *openlinks-url-detection*
+
+The plugin detects the following URL forms:
+
+- Scheme URLs: `https://`, `http://`, `ftp://`, `file://` followed by
+  non-whitespace characters.
+- Bare domains: words containing a dot followed by a known TLD
+  (com, org, net, io, dev, edu, gov, co, uk, me, info, app, xyz).
+  These are automatically prefixed with `https://` when opened.
+
+Trailing punctuation (periods, commas, parentheses, quotes, etc.) is
+stripped from matched URLs.
+
+==============================================================================
+CONFIGURATION                                  *openlinks-configuration*
+
+                                               *g:openlinks_command*
+g:openlinks_command      String. Shell command used to open URLs.
+                         If not set, the plugin auto-detects:
+                           macOS:   `open`
+                           Linux:   `xdg-open`
+                           Windows: `start`
+
+                         Example: >
+                           let g:openlinks_command = 'firefox'
+                           let g:openlinks_command = 'echo'
+<
+
+                                               *g:openlinks_confirm_threshold*
+g:openlinks_confirm_threshold
+                         Number. Default: 40.
+                         If the number of URLs found is greater than or
+                         equal to this value, a confirmation prompt is
+                         shown before opening them.
+
+                         Set to 0 to always confirm. Set to a very large
+                         number to never confirm. >
+                           let g:openlinks_confirm_threshold = 10
+<
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:

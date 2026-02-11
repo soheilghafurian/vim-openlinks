@@ -1,0 +1,177 @@
+" test/openlinks.vader - Unit tests for the openlinks plugin
+" Run with: ./test/run_tests.sh
+
+" ============================================================
+" URL Extraction Tests
+" ============================================================
+
+Execute (Extract https URL from plain text):
+  let result = openlinks#ExtractURLsFromLines(['Visit https://example.com for more'])
+  AssertEqual ['https://example.com'], result
+
+Execute (Extract http URL):
+  let result = openlinks#ExtractURLsFromLines(['Go to http://example.org/page'])
+  AssertEqual ['http://example.org/page'], result
+
+Execute (Extract ftp URL):
+  let result = openlinks#ExtractURLsFromLines(['Download from ftp://files.example.com/data'])
+  AssertEqual ['ftp://files.example.com/data'], result
+
+Execute (Extract file URL):
+  let result = openlinks#ExtractURLsFromLines(['Open file:///home/user/doc.html'])
+  AssertEqual ['file:///home/user/doc.html'], result
+
+Execute (Extract URL with path and query string):
+  let result = openlinks#ExtractURLsFromLines(['See https://example.com/path?q=search&lang=en#section'])
+  AssertEqual ['https://example.com/path?q=search&lang=en#section'], result
+
+Execute (Extract bare domain with .com):
+  let result = openlinks#ExtractURLsFromLines(['Check example.com for details'])
+  AssertEqual ['example.com'], result
+
+Execute (Extract bare domain with .org):
+  let result = openlinks#ExtractURLsFromLines(['Visit wikipedia.org today'])
+  AssertEqual ['wikipedia.org'], result
+
+Execute (Extract bare domain with .io):
+  let result = openlinks#ExtractURLsFromLines(['See myapp.io for the demo'])
+  AssertEqual ['myapp.io'], result
+
+Execute (Extract bare domain with path):
+  let result = openlinks#ExtractURLsFromLines(['Go to example.com/about for info'])
+  AssertEqual ['example.com/about'], result
+
+Execute (Extract bare subdomain):
+  let result = openlinks#ExtractURLsFromLines(['Visit docs.example.com now'])
+  AssertEqual ['docs.example.com'], result
+
+Execute (Multiple URLs on one line):
+  let result = openlinks#ExtractURLsFromLines(['See https://foo.com and https://bar.com here'])
+  AssertEqual ['https://foo.com', 'https://bar.com'], result
+
+Execute (Mixed scheme and bare URLs on one line):
+  let result = openlinks#ExtractURLsFromLines(['Visit https://foo.com or bar.org for info'])
+  AssertEqual ['https://foo.com', 'bar.org'], result
+
+Execute (URLs across multiple lines):
+  let lines = ['First https://one.com here', 'Second https://two.com there']
+  let result = openlinks#ExtractURLsFromLines(lines)
+  AssertEqual ['https://one.com', 'https://two.com'], result
+
+Execute (No URLs in text):
+  let result = openlinks#ExtractURLsFromLines(['This is plain text with no links'])
+  AssertEqual [], result
+
+Execute (Empty line):
+  let result = openlinks#ExtractURLsFromLines([''])
+  AssertEqual [], result
+
+Execute (Empty list):
+  let result = openlinks#ExtractURLsFromLines([])
+  AssertEqual [], result
+
+Execute (Strip trailing period):
+  let result = openlinks#ExtractURLsFromLines(['Go to https://example.com.'])
+  AssertEqual ['https://example.com'], result
+
+Execute (Strip trailing comma):
+  let result = openlinks#ExtractURLsFromLines(['See https://example.com, then continue'])
+  AssertEqual ['https://example.com'], result
+
+Execute (Strip trailing parenthesis):
+  let result = openlinks#ExtractURLsFromLines(['(see https://example.com)'])
+  AssertEqual ['https://example.com'], result
+
+Execute (Strip trailing semicolon):
+  let result = openlinks#ExtractURLsFromLines(['Link: https://example.com;'])
+  AssertEqual ['https://example.com'], result
+
+Execute (Strip trailing exclamation):
+  let result = openlinks#ExtractURLsFromLines(['Check https://example.com!'])
+  AssertEqual ['https://example.com'], result
+
+Execute (Strip trailing question mark):
+  let result = openlinks#ExtractURLsFromLines(['Have you seen https://example.com?'])
+  AssertEqual ['https://example.com'], result
+
+Execute (URL with port number):
+  let result = openlinks#ExtractURLsFromLines(['Server at https://localhost:8080/api'])
+  AssertEqual ['https://localhost:8080/api'], result
+
+Execute (Duplicate URLs both returned):
+  let result = openlinks#ExtractURLsFromLines(['https://dup.com and https://dup.com again'])
+  AssertEqual ['https://dup.com', 'https://dup.com'], result
+
+Execute (URL in markdown link):
+  let result = openlinks#ExtractURLsFromLines(['[click here](https://example.com)'])
+  AssertEqual ['https://example.com'], result
+
+Execute (URL in angle brackets):
+  let result = openlinks#ExtractURLsFromLines(['See <https://example.com> for info'])
+  AssertEqual ['https://example.com'], result
+
+Execute (Bare domain with .dev TLD):
+  let result = openlinks#ExtractURLsFromLines(['Visit mysite.dev for the docs'])
+  AssertEqual ['mysite.dev'], result
+
+Execute (Bare domain with .app TLD):
+  let result = openlinks#ExtractURLsFromLines(['Download at myapp.app now'])
+  AssertEqual ['myapp.app'], result
+
+Execute (Bare domain with .co.uk TLD):
+  let result = openlinks#ExtractURLsFromLines(['Visit shop.co.uk for deals'])
+  AssertEqual ['shop.co.uk'], result
+
+Execute (Word with dot but unknown TLD is not matched):
+  let result = openlinks#ExtractURLsFromLines(['File config.yaml is required'])
+  AssertEqual [], result
+
+Execute (Word with dot but .py is not matched):
+  let result = openlinks#ExtractURLsFromLines(['Run script.py to start'])
+  AssertEqual [], result
+
+" ============================================================
+" Buffer-based OpenLinks command tests
+" ============================================================
+
+Given (Single URL on a line):
+  Visit https://test.example.com for details
+
+Execute (OpenLinks sets messages for found URL):
+  let g:openlinks_command = 'true'
+  messages clear
+  OpenLinks
+  redir => g:test_messages
+    silent messages
+  redir END
+  Assert g:test_messages =~# 'https://test.example.com'
+  unlet g:openlinks_command
+
+Given (No URLs on a line):
+  This line has no links at all
+
+Execute (OpenLinks reports no URLs found):
+  messages clear
+  OpenLinks
+  redir => g:test_messages
+    silent messages
+  redir END
+  Assert g:test_messages =~# 'No URLs found'
+
+Given (Multiple lines with URLs):
+  First line https://alpha.com
+  Second line https://beta.com
+  Third line https://gamma.com
+
+Execute (OpenLinks with range opens URLs in range):
+  let g:openlinks_command = 'true'
+  messages clear
+  1,3OpenLinks
+  redir => g:test_messages
+    silent messages
+  redir END
+  Assert g:test_messages =~# 'alpha.com'
+  Assert g:test_messages =~# 'beta.com'
+  Assert g:test_messages =~# 'gamma.com'
+  Assert g:test_messages =~# 'Opened 3 URL(s)'
+  unlet g:openlinks_command
