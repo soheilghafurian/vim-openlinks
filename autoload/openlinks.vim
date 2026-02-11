@@ -79,5 +79,6 @@ function! openlinks#Open(line1, line2) abort
     call s:OpenURL(cmd, url)
   endfor
 
+  redraw
   echom 'OpenLinks: Opened ' . len(urls) . ' URL(s)'
 endfunction
