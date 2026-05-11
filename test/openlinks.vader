@@ -239,6 +239,11 @@ Given (Plug mappings are defined):
   dummy
 
 Execute (Plug mappings exist):
-  Assert hasmapto('<Plug>(openlinks)'), '<Plug>(openlinks) should be mapped'
-  Assert hasmapto('<Plug>(openlinks-line)'), '<Plug>(openlinks-line) should be mapped'
-  Assert hasmapto('<Plug>(openlinks-visual)'), '<Plug>(openlinks-visual) should be mapped'
+  Assert !empty(maparg('<Plug>(openlinks)', 'n')), '<Plug>(openlinks) should be defined'
+  Assert !empty(maparg('<Plug>(openlinks-line)', 'n')), '<Plug>(openlinks-line) should be defined'
+  Assert !empty(maparg('<Plug>(openlinks-visual)', 'x')), '<Plug>(openlinks-visual) should be defined'
+
+Execute (No default user-facing mappings are created):
+  Assert !hasmapto('<Plug>(openlinks)'), 'no default mapping to <Plug>(openlinks)'
+  Assert !hasmapto('<Plug>(openlinks-line)'), 'no default mapping to <Plug>(openlinks-line)'
+  Assert !hasmapto('<Plug>(openlinks-visual)'), 'no default mapping to <Plug>(openlinks-visual)'
