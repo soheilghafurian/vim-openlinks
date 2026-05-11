@@ -34,6 +34,7 @@ The `:OpenLinks` command accepts any standard ex range:
 
 ```vim
 :OpenLinks              " current line
+:5OpenLinks             " line 5
 :5,10OpenLinks          " lines 5-10
 :'<,'>OpenLinks         " visual selection
 :%OpenLinks             " entire buffer
