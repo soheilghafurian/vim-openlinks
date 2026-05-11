@@ -39,9 +39,17 @@ The `:OpenLinks` command accepts any standard ex range:
 :%OpenLinks             " entire buffer
 ```
 
-### Normal Mode Mappings
+### Key Mappings
 
-The plugin maps `<leader>x` as an operator, following standard Vim conventions:
+The plugin does not define any key mappings by default. Add the following to your `.vimrc` to set up mappings (change `<leader>x` to any key you prefer):
+
+```vim
+nmap <leader>x <Plug>(openlinks)
+nmap <leader>xx <Plug>(openlinks-line)
+xmap <leader>x <Plug>(openlinks-visual)
+```
+
+The first mapping is an operator, so it composes with motions:
 
 | Keys | Scope |
 |---|---|
@@ -50,14 +58,6 @@ The plugin maps `<leader>x` as an operator, following standard Vim conventions:
 | `<leader>x5j` | current + next 5 lines |
 | `<leader>xG` | current line to end of file |
 | `V` select then `<leader>x` | visual selection |
-
-To use a different key, remap the `<Plug>` mappings in your `.vimrc`:
-
-```vim
-nmap <leader>o <Plug>(openlinks)
-nmap <leader>oo <Plug>(openlinks-line)
-xmap <leader>o <Plug>(openlinks-visual)
-```
 
 ### URL Detection
 
